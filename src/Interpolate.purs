@@ -29,16 +29,16 @@ instance interpolateBoolean :: Interpolate Boolean where
 class
   InterpolateRecord
     (rl :: RL.RowList Type)
-    (a :: Row Type)
+    (r :: Row Type)
     (from :: Row Type)
     (to :: Row Type)
-  | rl -> a from to
+  | rl -> r from to
   where
   interpolateRecordImpl
     :: Number
     -> Proxy rl
-    -> Record a
-    -> Record a
+    -> Record r
+    -> Record r
     -> Builder { | from } { | to }
 
 instance interpolateRecordNil :: InterpolateRecord RL.Nil trashA () () where
@@ -46,13 +46,13 @@ instance interpolateRecordNil :: InterpolateRecord RL.Nil trashA () () where
 
 instance interpolateRecordCons ::
   ( IsSymbol k
-  , Row.Cons k a trashA ra
+  , Row.Cons k a trashA r
   , Row.Cons k a from' to
   , Row.Lacks k from'
-  , InterpolateRecord t ra from from'
+  , InterpolateRecord t r from from'
   , Interpolate a
   ) =>
-  InterpolateRecord (RL.Cons k a t) ra from to where
+  InterpolateRecord (RL.Cons k a t) r from to where
   interpolateRecordImpl n _ a b = current <<< next
     where
     current = Builder.insert name head
