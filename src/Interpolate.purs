@@ -23,8 +23,8 @@ instance interpolateInt :: Interpolate Int where
 instance interpolateBoolean :: Interpolate Boolean where
   interpolate n a b = roundBool $ interpolate n (fromBool a) (fromBool b)
     where
-      fromBool = if _ then 1.0 else 0.0
-      roundBool x = round x > 0
+    fromBool = if _ then 1.0 else 0.0
+    roundBool x = round x > 0
 
 class
   InterpolateRecord
@@ -53,8 +53,10 @@ instance interpolateRecordCons ::
   , Interpolate a
   ) =>
   InterpolateRecord (RL.Cons k a t) ra from to where
-  interpolateRecordImpl n _ a b = Builder.insert name head <<< interpolateRecordImpl n proxyA a b
+  interpolateRecordImpl n _ a b = current <<< next
     where
+    current = Builder.insert name head
+    next = interpolateRecordImpl n proxyA a b
     name = Proxy :: _ k
     head = interpolate n (R.get name a) (R.get name b)
     proxyA = Proxy :: _ t
