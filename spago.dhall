@@ -2,6 +2,7 @@
 , dependencies =
   [ "aff"
   , "effect"
+  , "integers"
   , "prelude"
   , "record"
   , "spec"
