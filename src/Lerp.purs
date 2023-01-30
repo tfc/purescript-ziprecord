@@ -75,8 +75,8 @@ lerpRecord
   -> Record r
 lerpRecord n a b = Builder.build builder {}
   where
-  proxyA = Proxy :: _ t
-  builder = lerpRecordImpl n proxyA a b
+  tail = Proxy :: _ t
+  builder = lerpRecordImpl n tail a b
 
 instance lerpRecordInstance ::
   ( RL.RowToList a t
