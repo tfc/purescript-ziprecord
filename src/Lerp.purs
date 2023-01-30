@@ -49,21 +49,21 @@ instance lerpRecordNil :: LerpRecord RL.Nil trashA () () where
   lerpRecordImpl _ _ _ _ = identity
 
 instance lerpRecordCons ::
-  ( IsSymbol k
+  ( LerpRecord t r from to'
   , Row.Cons k a trashA r
-  , Row.Cons k a from' to
-  , Row.Lacks k from'
-  , LerpRecord t r from from'
+  , Row.Cons k a to' to
+  , Row.Lacks k to'
+  , IsSymbol k
   , Lerp a
   ) =>
   LerpRecord (RL.Cons k a t) r from to where
   lerpRecordImpl n _ a b = current <<< next
     where
-    current = Builder.insert name head
-    next = lerpRecordImpl n proxyA a b
-    name = Proxy :: _ k
-    head = lerp n (R.get name a) (R.get name b)
-    proxyA = Proxy :: _ t
+    current = Builder.insert key lerpedValue
+    next = lerpRecordImpl n tail a b
+    lerpedValue = lerp n (R.get key a) (R.get key b)
+    key = Proxy :: _ k
+    tail = Proxy :: _ t
 
 lerpRecord
   :: forall t r
