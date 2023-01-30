@@ -27,6 +27,8 @@ main = launchAff_ $ runSpec [ consoleReporter ] do
       lerp 0.1 false true `shouldEqual` false
       lerp 0.5 false true `shouldEqual` true
       lerp 1.0 false true `shouldEqual` true
+    it "correctly lerps arrays of floats" do
+      lerp 0.5 [0.0, 10.0] [10.0, 20.0] `shouldEqual` [5.0, 15.0]
     it "correctly lerps non-nested records" do
       lerp 0.5 { a: 0 } { a: 10 } `shouldEqual` { a: 5 }
     it "correctly lerps nested records" do

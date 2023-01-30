@@ -1,6 +1,7 @@
 { name = "my-project"
 , dependencies =
   [ "aff"
+  , "arrays"
   , "effect"
   , "integers"
   , "prelude"

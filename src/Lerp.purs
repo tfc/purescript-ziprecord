@@ -10,6 +10,7 @@ import Type.Proxy (Proxy(..))
 import Record.Builder (Builder)
 import Record.Builder as Builder
 import Data.Int (toNumber, round)
+import Data.Array (zipWith)
 
 class Lerp a where
   lerp :: Number -> a -> a -> a
@@ -25,6 +26,9 @@ instance lerpBoolean :: Lerp Boolean where
     where
     fromBool = if _ then 1.0 else 0.0
     roundBool x = round x > 0
+
+instance lerpArray :: Lerp a => Lerp (Array a) where
+  lerp n a b = zipWith (lerp n) a b
 
 class
   LerpRecord
