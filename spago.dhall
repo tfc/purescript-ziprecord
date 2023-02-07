@@ -3,6 +3,7 @@
   [ "aff"
   , "arrays"
   , "effect"
+  , "heterogeneous"
   , "integers"
   , "prelude"
   , "record"

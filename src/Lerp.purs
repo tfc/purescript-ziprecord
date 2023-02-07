@@ -6,11 +6,10 @@ import Prim.Row as Row
 import Prim.RowList as RL
 import Record (get) as R
 import Type.Prelude (class IsSymbol)
-import Type.Proxy (Proxy(..))
-import Record.Builder (Builder)
-import Record.Builder as Builder
+import Type.Proxy (Proxy)
 import Data.Int (toNumber, round)
 import Data.Array (zipWith)
+import Heterogeneous.Mapping as HM
 
 class Lerp a where
   lerp :: Number -> a -> a -> a
@@ -30,57 +29,20 @@ instance lerpBoolean :: Lerp Boolean where
 instance lerpArray :: Lerp a => Lerp (Array a) where
   lerp n a b = zipWith (lerp n) a b
 
-class
-  LerpRecord
-    (rl :: RL.RowList Type)
-    (r :: Row Type)
-    (from :: Row Type)
-    (to :: Row Type)
-  | rl -> r from to
-  where
-  lerpRecordImpl
-    :: Number
-    -> Proxy rl
-    -> Record r
-    -> Record r
-    -> Builder { | from } { | to }
+data LerpMapping items = LerpMapping Number { | items }
 
-instance lerpRecordNil :: LerpRecord RL.Nil trashA () () where
-  lerpRecordImpl _ _ _ _ = identity
-
-instance lerpRecordCons ::
-  ( LerpRecord t r from to'
-  , Row.Cons k a trashA r
-  , Row.Cons k a to' to
-  , Row.Lacks k to'
-  , IsSymbol k
+instance lerpMappingWithIndex ::
+  ( IsSymbol sym
+  , Row.Cons sym a x as
   , Lerp a
   ) =>
-  LerpRecord (RL.Cons k a t) r from to where
-  lerpRecordImpl n _ a b = current <<< next
-    where
-    current = Builder.insert key lerpedValue
-    next = lerpRecordImpl n tail a b
-    lerpedValue = lerp n (R.get key a) (R.get key b)
-    key = Proxy :: _ k
-    tail = Proxy :: _ t
-
-lerpRecord
-  :: forall t r
-   . RL.RowToList r t
-  => LerpRecord t r () r
-  => Number
-  -> Record r
-  -> Record r
-  -> Record r
-lerpRecord n a b = Builder.build builder {}
-  where
-  tail = Proxy :: _ t
-  builder = lerpRecordImpl n tail a b
+  HM.MappingWithIndex (LerpMapping as) (Proxy sym) a a where
+  mappingWithIndex (LerpMapping n as) prop = lerp n (R.get prop as)
 
 instance lerpRecordInstance ::
   ( RL.RowToList a t
-  , LerpRecord t a () a
+  , HM.MapRecordWithIndex t (LerpMapping a) a a
   ) =>
   Lerp (Record a) where
-  lerp = lerpRecord
+  lerp n = HM.hmapWithIndex <<< LerpMapping n
+
